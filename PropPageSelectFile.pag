@@ -1,0 +1,246 @@
+VERSION 5.00
+Object = "{6B7E6392-850A-101B-AFC0-4210102A8DA7}#1.3#0"; "COMCTL32.OCX"
+Begin VB.PropertyPage PropPageSelectFile 
+   Caption         =   "Select Textfile"
+   ClientHeight    =   3210
+   ClientLeft      =   0
+   ClientTop       =   0
+   ClientWidth     =   4950
+   ClipControls    =   0   'False
+   PaletteMode     =   0  'Rasterbild
+   ScaleHeight     =   3210
+   ScaleWidth      =   4950
+   Begin VB.ComboBox CboFiletype 
+      Height          =   315
+      ItemData        =   "PropPageSelectFile.pgx":0000
+      Left            =   0
+      List            =   "PropPageSelectFile.pgx":000A
+      Style           =   2  'Dropdown-Liste
+      TabIndex        =   4
+      Top             =   2880
+      Width           =   4935
+   End
+   Begin VB.DriveListBox Drives 
+      Height          =   315
+      Left            =   1680
+      TabIndex        =   2
+      Top             =   840
+      Visible         =   0   'False
+      Width           =   2145
+   End
+   Begin VB.DirListBox Folder 
+      Height          =   315
+      Left            =   1680
+      TabIndex        =   1
+      Top             =   1200
+      Visible         =   0   'False
+      Width           =   2175
+   End
+   Begin VB.FileListBox Files 
+      Height          =   285
+      Left            =   1680
+      Pattern         =   "*.txt"
+      TabIndex        =   0
+      Top             =   1560
+      Visible         =   0   'False
+      Width           =   2175
+   End
+   Begin ComctlLib.TreeView TV 
+      Height          =   2895
+      Left            =   0
+      TabIndex        =   3
+      Top             =   0
+      Width           =   4935
+      _ExtentX        =   8705
+      _ExtentY        =   5106
+      _Version        =   327682
+      Style           =   7
+      ImageList       =   "IlIcons"
+      Appearance      =   1
+   End
+   Begin ComctlLib.ImageList IlIcons 
+      Left            =   0
+      Top             =   0
+      _ExtentX        =   1005
+      _ExtentY        =   1005
+      BackColor       =   -2147483643
+      ImageWidth      =   16
+      ImageHeight     =   16
+      MaskColor       =   128
+      _Version        =   327682
+      BeginProperty Images {0713E8C2-850A-101B-AFC0-4210102A8DA7} 
+         NumListImages   =   10
+         BeginProperty ListImage1 {0713E8C3-850A-101B-AFC0-4210102A8DA7} 
+            Picture         =   "PropPageSelectFile.pgx":002E
+            Key             =   ""
+         EndProperty
+         BeginProperty ListImage2 {0713E8C3-850A-101B-AFC0-4210102A8DA7} 
+            Picture         =   "PropPageSelectFile.pgx":0140
+            Key             =   ""
+         EndProperty
+         BeginProperty ListImage3 {0713E8C3-850A-101B-AFC0-4210102A8DA7} 
+            Picture         =   "PropPageSelectFile.pgx":0252
+            Key             =   ""
+         EndProperty
+         BeginProperty ListImage4 {0713E8C3-850A-101B-AFC0-4210102A8DA7} 
+            Picture         =   "PropPageSelectFile.pgx":0364
+            Key             =   ""
+         EndProperty
+         BeginProperty ListImage5 {0713E8C3-850A-101B-AFC0-4210102A8DA7} 
+            Picture         =   "PropPageSelectFile.pgx":0476
+            Key             =   ""
+         EndProperty
+         BeginProperty ListImage6 {0713E8C3-850A-101B-AFC0-4210102A8DA7} 
+            Picture         =   "PropPageSelectFile.pgx":0588
+            Key             =   ""
+         EndProperty
+         BeginProperty ListImage7 {0713E8C3-850A-101B-AFC0-4210102A8DA7} 
+            Picture         =   "PropPageSelectFile.pgx":069A
+            Key             =   ""
+         EndProperty
+         BeginProperty ListImage8 {0713E8C3-850A-101B-AFC0-4210102A8DA7} 
+            Picture         =   "PropPageSelectFile.pgx":07AC
+            Key             =   ""
+         EndProperty
+         BeginProperty ListImage9 {0713E8C3-850A-101B-AFC0-4210102A8DA7} 
+            Picture         =   "PropPageSelectFile.pgx":08BE
+            Key             =   ""
+         EndProperty
+         BeginProperty ListImage10 {0713E8C3-850A-101B-AFC0-4210102A8DA7} 
+            Picture         =   "PropPageSelectFile.pgx":09D0
+            Key             =   ""
+         EndProperty
+      EndProperty
+   End
+End
+Attribute VB_Name = "PropPageSelectFile"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = True
+Attribute VB_PredeclaredId = False
+Attribute VB_Exposed = True
+Option Explicit
+Private Declare Function GetDriveType Lib "kernel32" Alias "GetDriveTypeA" (ByVal nDrive As String) As Long
+Private xds As String
+
+Private Sub CboFiletype_Click()
+ If CboFiletype.ListIndex = 0 Then
+  Files.Pattern = "*.txt"
+ Else
+  Files.Pattern = "*.*"
+ End If
+ DriveList
+End Sub
+
+Private Sub Folder_Change()
+ Files.Path = Folder.Path
+End Sub
+
+Private Sub PropertyPage_ApplyChanges()
+ TV_DblClick
+End Sub
+
+Private Sub PropertyPage_Initialize()
+ CboFiletype.ListIndex = 0
+ DriveList
+ DoEvents
+End Sub
+
+
+Private Sub DriveList()
+
+ Dim i As Integer
+ Dim DrivePath As String
+ Dim TVIcon As Integer
+
+ 'Clear all
+ TV.Nodes.Clear
+
+ For i = 0 To Drives.ListCount - 1
+  DrivePath = UCase(Left(Drives.List(i), 1)) & ":\"
+  Select Case GetDriveType(DrivePath)
+  Case 2 'Removable
+   If i < 2 Then 'Drive a: or b:
+    TVIcon = 1
+   Else
+    TVIcon = 4
+   End If
+  Case 3 'Fixed
+   TVIcon = 2
+  Case 4 'Remote (Network)
+   TVIcon = 5
+  Case 5 'CD Rom
+   TVIcon = 3
+  Case 6 'Ram
+   TVIcon = 6
+  End Select
+  TV.Nodes.Add , , DrivePath, Left$(DrivePath, 2), TVIcon
+  TV.Nodes.Add DrivePath, tvwChild, ""
+ Next
+
+End Sub
+
+
+Private Sub TV_Click()
+ If TV.SelectedItem.Key = "" Then
+  PropertyPage.Changed = True
+ End If
+End Sub
+
+Private Sub TV_DblClick()
+ If TV.SelectedItem.Key = "" Then
+  SelectedControls(0).Textfile = TV.SelectedItem.FullPath
+  SendKeys "{ESC}"
+ End If
+End Sub
+
+Private Sub tv_Expand(ByVal Node As ComctlLib.Node)
+ On Error GoTo ErrExp
+
+ Dim i As Integer
+ Dim Relative As String
+ Dim FolderName As String
+ Dim FolderPos As Integer
+ Dim Icon As Integer
+ Dim NewPath As String
+ Dim Ext As String
+ Dim ExtPos As Integer
+
+ MousePointer = vbHourglass
+
+ If Node.Child.Text = "" Then
+
+  TV.Nodes.Remove Node.Child.Index
+  Relative = Node.Key
+  Folder.Path = Relative
+  FolderPos = Len(Relative) + 1
+
+  'Add folders
+  For i = 0 To Folder.ListCount - 1
+   FolderName = Mid(Folder.List(i), FolderPos)
+   NewPath = Relative & FolderName & "\"
+   TV.Nodes.Add Relative, tvwChild, NewPath, FolderName, 7
+   Folder.Path = NewPath
+   If (Files.ListCount > 0) Or (Folder.ListCount > 0) Then
+    TV.Nodes.Add NewPath, tvwChild, , ""
+    TV.Nodes(NewPath).ExpandedImage = 8
+   End If
+   Folder.Path = Relative
+  Next
+
+  'Add files
+  For i = 0 To Files.ListCount - 1
+   If Right$(UCase(Files.List(i)), 3) = "TXT" Then
+    Icon = 9
+   Else
+    Icon = 10
+   End If
+   TV.Nodes.Add Relative, tvwChild, , Files.List(i), Icon
+  Next
+
+ End If
+ErrExp:
+ MousePointer = vbDefault
+End Sub
+
+
+

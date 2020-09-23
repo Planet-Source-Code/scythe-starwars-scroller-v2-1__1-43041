@@ -1,0 +1,22 @@
+Starwars
+Scroller V2.1
+
+
+A long Time ago.
+in a Galaxy far far away.
+......
+
+This is a Little Starwars Scroller OCX.
+For all people who like ActiveX.
+
+U can change:
+Font- size, style, name
+Scollspeed
+Textfile
+
+The Scrolltext has no sizelimit.
+
+U can check if the Scroller is active.
+
+For new Ideas/wishes contact me:
+scythe@cablenet.de
