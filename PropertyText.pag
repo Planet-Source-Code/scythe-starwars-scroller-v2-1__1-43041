@@ -1,0 +1,78 @@
+VERSION 5.00
+Begin VB.PropertyPage PropertyText 
+   Caption         =   "PropertyPage1"
+   ClientHeight    =   3600
+   ClientLeft      =   0
+   ClientTop       =   0
+   ClientWidth     =   4800
+   PaletteMode     =   0  'Rasterbild
+   ScaleHeight     =   3600
+   ScaleWidth      =   4800
+   Begin VB.TextBox Text1 
+      Height          =   3615
+      Left            =   0
+      MultiLine       =   -1  'True
+      ScrollBars      =   3  'Beides
+      TabIndex        =   0
+      Top             =   0
+      Width           =   4815
+   End
+End
+Attribute VB_Name = "PropertyText"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = True
+Attribute VB_PredeclaredId = False
+Attribute VB_Exposed = True
+Dim GotText As Boolean
+Private Sub PropertyPage_Paint()
+ Text1.SetFocus
+End Sub
+
+Private Sub Text1_Change()
+ If Text1.Text <> SelectedControls(0).Text Then
+  PropertyPage.Changed = True
+ End If
+End Sub
+
+Private Sub Text1_GotFocus()
+ If GotText = False Then
+  Text1.Text = SelectedControls(0).Text
+  GotText = True
+ End If
+End Sub
+
+Private Sub Text1_KeyDown(KeyCode As Integer, Shift As Integer)
+ Dim x As Long
+ If KeyCode = 13 Then
+  x = Text1.SelStart
+  Text1.Text = Left$(Text1.Text, x) & vbCrLf & Right$(Text1.Text, Len(Text1.Text) - x)
+  Text1.SelStart = x + 2
+ End If
+End Sub
+Private Sub PropertyPage_ApplyChanges()
+ SelectedControls(0).Text = Text1.Text
+ SelectedControls(0).TextAsFile = False
+ SendKeys "{ESC}"
+End Sub
+
+Public Function GetLines(TextAsLines() As String, ByVal TextString As String)
+ '  Dim Lines$()
+ '  Dim lY as long
+ '  lY = CountLines(Text1.text)
+ '  ReDim Lines$(lY)
+ 'GetLines Lines$(), Text1.Text
+ 'gives the Text in Text1.Text as separated lines back
+
+ Dim lTmpX, lTmpY, lTmpZ As Long
+ lTmpX = 1
+ Do Until InStr(lTmpX, TextString, vbCrLf) = 0
+  lTmpZ = lTmpX
+  lTmpX = InStr(lTmpX, TextString, vbCrLf) + 2
+  TextAsLines(lTmpY) = Mid$(TextString, lTmpZ, lTmpX - lTmpZ)
+  lTmpY = lTmpY + 1
+ Loop
+ 'Last line without Enter ?
+ If lTmpX < Len(TextString) Then
+  TextAsLines(lTmpY) = Mid$(TextString, lTmpX, Len(TextString) - lTmpX)
+ End If
+End Function
